@@ -1,0 +1,133 @@
+<html>
+	<head>
+		<title>WordData</title>
+	</head>
+	<body>
+		<textarea id="input-field" value="Input"></textarea>
+		<input type="checkbox" id="enable-json-field" checked="true"></textarea>
+		<input type="checkbox" id="remove-html-field" checked="true"></textarea>
+		<button onclick="analyze();">
+			Analyze text
+		</button>
+		<script type="text/javascript">
+			// Code based on snippet from https://stackoverflow.com/a/822486
+			function removeHtml(html) {
+				var temp = document.createElement("div");
+				temp.innerHTML = html;
+				return temp.textContent || temp.innerText || "";
+			}
+
+			function compare(a, b) {
+				if (a.uses > b.uses)
+					return -1;
+				if (a.uses < b.uses)
+					return 1;
+				return 0;
+			}
+			
+			function analyze() {
+				var input = document.getElementById("input-field").value;
+				input = removeHtml(input);
+				if (input !== "" && input !== undefined && input !== null) {
+					if (document.getElementById("enable-json-field").checked == true) {
+						input = JSON.parse(input);
+						statistics = {
+							items: [
+
+							],
+							total: {
+								words: [
+
+								],
+								totalWordCount: 0,
+								averageWordCount: 0,
+								mostWords: {
+									item: undefined,
+									wordCount: 0
+								},
+								leastWords: {
+									item: undefined,
+									wordCount: 0
+								}
+							},
+							words: {}
+						};
+
+						statistics.total.averageWordCount = 0;
+						statistics.total.mostWords.wordCount = 0;
+						for (var i = 0; i < input.length; i ++) {
+							statistics.items.push(
+								{
+									words: [
+
+									],
+									wordCount: 0
+								}
+							);
+							statistics.items[i].words = input[i].split(" ");
+							statistics.items[i].wordCount = statistics.items[i].words.length;
+
+							for (var j = 0; j < statistics.items[i].words.length; j ++) {
+								var word = statistics.items[i].words[j];
+								statistics.total.words.push(statistics.items[i].words[j]);
+								if (statistics.words[word]) {
+									statistics.words[word] ++;
+								}
+								else {
+									statistics.words[word] = 1;
+								}
+							}
+							statistics.total.averageWordCount += statistics.items[i].wordCount / statistics.items.length;
+
+							if (statistics.items[i].wordCount > statistics.total.mostWords.wordCount) {
+								statistics.total.mostWords.wordCount = statistics.items[i].wordCount;
+								statistics.total.mostWords.item = statistics.items[i];
+							}
+						}
+						statistics.total.leastWords.wordCount = statistics.total.mostWords.wordCount;
+						for (var i = 0; i < input.length; i ++) {
+							if (statistics.items[i].wordCount < statistics.total.leastWords.wordCount) {
+								statistics.total.leastWords.wordCount = statistics.items[i].wordCount;
+								statistics.total.leastWords.item = statistics.items[i];
+							}
+						}
+						statistics.total.totalWordCount = statistics.total.words.length;
+
+
+						//html version (images, links, etc.)
+					}
+					else {
+
+					}
+					statistics.mostCommonWord = "";
+					for (var word in statistics.words) {
+						if (statistics.words[word] > statistics.mostCommonWord && word != "a") {
+							statistics.mostCommonWord = word;
+							statistics.mostCommonWordUses = statistics.words[word];
+						}
+					}
+					statistics.words_ = [];
+					for (var word in statistics.words) {
+						statistics.words_.push(
+							{
+								"word": word,
+								"uses": statistics.words[word]
+							}
+						);
+					}
+					statistics.words_.sort(compare);
+					console.log("Text successfully analyzed. JSON-formatted statistics report: ");
+					console.log(statistics);
+				}
+				// Display an error message if nothing is entered in the input field
+				else {
+					var error = "Error: No input provided. Please input a string or JSON-formatted 1-dimensional array into the text box labeled 'input'.";
+					// Display dialogue box containing error message
+					window.alert(error);
+					// Write error message to JavaScript developer console
+					console.log(error);
+				}
+			}
+		</script>
+	</body>
+</html>
